@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Dreamteck.Splines;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -14,6 +15,7 @@ public class BuilderManager : MonoBehaviour
     List<GameObject> spheres;
     SplinePoint[] startingPoints;
     bool isEditing = false;
+    [SerializeField] Transform XRTransformOrigin;
     // Start is called before the first frame update
     void Start()
     {
@@ -69,5 +71,34 @@ public class BuilderManager : MonoBehaviour
             Destroy(spheres[i]);
         }
         spheres.Clear();
+        isEditing=false;
+    }
+
+    public void AddNewSphere()
+    {
+        if(!isEditing)
+            return;
+        
+        Vector3 nearPoint = XRTransformOrigin.position;
+
+        int nearIndex = 0;
+        float nearDist = float.MaxValue; 
+        for (int i = 0; i<spheres.Count;i++)
+        {
+            float dist = (spheres[i].transform.position-nearPoint).magnitude;
+            if(dist<nearDist)
+            {
+                nearIndex=i;
+                nearDist=dist;
+            }
+        }
+        int nextIndex = nearDist<spheres.Count-1 ? nearIndex+1 : 0;
+
+        Vector3 newPos = spheres[nearIndex].transform.position+(spheres[nextIndex].transform.position-spheres[nearIndex].transform.position)/2;
+        GameObject temp = Instantiate(selectionSphere,newPos,Quaternion.LookRotation(spheres[nextIndex].transform.position-spheres[nearIndex].transform.position,spheres[nearIndex].transform.up),sphereParrent);
+        temp.GetComponent<XRGrabInteractable>().hoverExited.AddListener(SphereSetDown);
+        spheres.Insert(nextIndex,temp);
+
+        SphereSetDown(args: null);
     }
 }
