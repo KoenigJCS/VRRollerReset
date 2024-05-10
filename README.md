@@ -2,7 +2,9 @@
 ## Tutorial:
 ### Movement:
 Right controller is used for teleportation movement
+
 Left controller is used for standard movement
+
 Both controllers can be used for grabbing and editing the coaster
 ### Build Mode:
 Go up to one of the red spheres, these are the primary nodes of the track.
